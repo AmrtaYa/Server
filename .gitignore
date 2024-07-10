@@ -3,7 +3,6 @@ Unity/Porject/Logs
 Unity/Porject/UserSettings
 Unity/Porject/Temp
 *.csproj
-*.sln
 *.vcxproj
 *.filters
 *.user
