@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="Login.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Amrta的官方博客</title>
+</head>
+
+<body>
+    <div class="menu-bar">
+        <h1 class="logo">
+            <span><img src="mainPage.jpg" class="HeadImage"></span>
+            <span class="logoTitle"> Amrta<span>博客</span></span>
+        </h1>
+        <ul>
+            <li><a href="../Home/Amrta.html">首页</a></li>
+            <li><a href="#">笔记<i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-menu">
+                    <ul>
+                        <li><a href="#">Unity/UE</a></li>
+                        <li><a href="#">渲染</a></li>
+                        <li><a href="#">后端</a></li>
+                        <li><a href="#">AI</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li><a href="#">作品展示 </a></li>
+        </ul>
+    </div>
+    <div class="box">
+        <h2>Login</h2>
+        <div class="input-box">
+            <label>账号</label>
+            <input type="text" id="userInput" name="userInput" />
+        </div>
+        <div class="input-box">
+            <label>密码</label>
+            <input type="password" id="pwdInput" name="pwdInput" />
+        </div>
+        <div class="btn-box">
+            <a href="#">忘记密码?</a>
+            <div>
+                <button id="LoginBtn">登录</button>
+                <button id="RegisterBtn">注册</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="Login.js"></script>
+
+</html>

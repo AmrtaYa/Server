@@ -1,0 +1,14 @@
+Unity/Porject/Library
+Unity/Porject/Logs
+Unity/Porject/UserSettings
+Unity/Porject/Temp
+*.csproj
+*.sln
+*.vcxproj
+*.filters
+*.user
+Res
+Web/.vs
+Web/x64
+Web/Web
+Web/packages

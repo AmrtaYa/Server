@@ -1,0 +1,8 @@
+Tcp包头解析
+short 包体长度   
+TCP包体      
+信息ID
+信息本体（Json格式）
+格式:
+id : xxx       //ID信息
+msg: xxxx   //主体主要信息
