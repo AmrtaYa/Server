@@ -10,9 +10,9 @@ private:
 	ServerManager();
 	short serverNum;
 	std::map <ServerData*, std::shared_ptr<Server>> serverMap;
+	std::shared_ptr<Server> CreateServer(ServerData* data);
 public:
 	void Init(ServerData* data, short serverNum);
-	std::shared_ptr<Server> CreateServer(ServerData* data);
 	Server* GetServer(ServerType serverType);
 	ServerData* GetData(ServerType serverType);
 	/// <summary>

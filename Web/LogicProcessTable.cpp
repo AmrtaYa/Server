@@ -4,6 +4,7 @@
 #include "LogicSystem.h"
 #include "HttpConnect.h"
 #include "FileHelper.h"
+#include "DbManager.h"
 void LogicProcessTable::TCP_ProcessEchoTest_1001(std::shared_ptr<LogicNode> nodeValue)
 {
 	auto msg = nodeValue->GetWholeJsonMsg();
@@ -70,18 +71,27 @@ void HttpLogicPorcessTable::Http_ProcessDBConfirm(std::shared_ptr<Connect> http,
 	respond.set(boost::beast::http::field::access_control_allow_origin, "*");
 
 	size_t pos = data.find_last_of("?");
-	data = data.substr(pos+1, data.length());
+	data = data.substr(pos + 1, data.length());
 	size_t andPos = data.find_last_of("&");
 	std::string userStr = data.substr(0, andPos);
-	std::string pwdStr = data.substr(andPos+1, data.length());
+	std::string pwdStr = data.substr(andPos + 1, data.length());
 
-	auto userEqPos = userStr.find_first_of('=')+1;
-	auto pwdEqPos = pwdStr.find_first_of('=')+1;
-	userStr = userStr.substr(userEqPos,userStr.length());
+	auto userEqPos = userStr.find_first_of('=') + 1;
+	auto pwdEqPos = pwdStr.find_first_of('=') + 1;
+	userStr = userStr.substr(userEqPos, userStr.length());
 	pwdStr = pwdStr.substr(pwdEqPos, pwdStr.length());
 
 
 	//boost::beast::ostream(respond.body()) << ;
-	LogManager::Log("收到数据库验证信息账号:" + userStr);
-	LogManager::Log("收到数据库验证信息密码:" + pwdStr);
+
+
+	//这边可能需要防注入一下
+	std::stringstream sstream;
+	sstream << "Account = '" << userStr << "' AND " << "Pwd = '" << pwdStr << "'";
+	auto entity = DB_FIND(sstream.str(), "*", Entity::UserInfo);
+	if (!entity.account.empty())
+		LogManager::Log("账号验证成功，账号为:" + userStr);
+	else
+		LogManager::Log("账号验证失败，账号为:" + userStr);
+	
 }

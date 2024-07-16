@@ -12,3 +12,9 @@ void SingleDB::Start()
 void SingleDB::Stop()
 {
 }
+
+void SingleDB::OperateSQL(std::string operatorStr)
+{
+}
+
+
