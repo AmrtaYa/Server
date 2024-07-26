@@ -53,18 +53,6 @@ int main()
 		DbManager::GetInstance()->Init(dbDatas.data(), dbDatas.size());
 		ServerManager::GetInstance()->Init(datas.data(), 1);
 
-
-
-		auto userInfo2 = DB_FIND_ONE("", "*", Entity::UserInfo);
-		auto serverInfo = DB_FIND("", "*", Entity::ServerInfo);
-
-	
-			boost::pfr::for_each_field(userInfo2,[](const auto& field) {
-				std::cout << field << std::endl;
-			});
-	
-
-
 		IOServerPool::GetInstance()->Run();
 		return 0;
 	}
