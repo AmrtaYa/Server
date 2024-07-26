@@ -8,6 +8,7 @@
 #include <odbcss.h>
 #include <functional>
 #include "SQLDefine.h"
+#include "vector"
 class DBConfig;
 class SingleDB
 {
@@ -16,7 +17,11 @@ public:
 	virtual void Start();
 	virtual void Stop();
 	template<typename T>
-	 T Find(std::string str, std::string cols, EntityFunc& reflectFunc);
+	 std::vector<T> Find(std::string str, std::string cols, EntityFindFunc& reflectFunc);
+	 template<typename T>
+	 T FindOne(std::string str, std::string cols, EntityFindFunc& reflectFunc);
+	 template<typename T>
+	 int UpdateOne(T entity, EntityUpdateFunc& func);
 	//int Insert();
 	//int Delte();
 	//int Update();
@@ -36,11 +41,23 @@ protected:
 /// <param name="cols">列的筛选条件</param>
 /// <returns></returns>
 template<typename T>
- T SingleDB::Find(std::string str, std::string cols, EntityFunc& reflectFunc)
+ std::vector<T> SingleDB::Find(std::string str, std::string cols, EntityFindFunc& reflectFunc)
 {
 	/*SQLServer* sql = static_cast<SQLServer*>(this);
 	
 	return sql->Find();*/
-	 return T();
+	return std::vector<T>();
 }
+
+ template<typename T>
+  T SingleDB::FindOne(std::string str, std::string cols, EntityFindFunc& reflectFunc)
+ {
+	 return T();
+ }
+
+  template<typename T>
+  inline int SingleDB::UpdateOne(T entity, EntityUpdateFunc& func)
+  {
+	  return 0;
+  }
 

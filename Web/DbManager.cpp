@@ -37,10 +37,32 @@ void DbManager::SetCurrentDB(DataBaseType dbType)
 	this->currentDBType = dbType;
 }
 
+void DbManager::SQLOperator(std::string sqlStr)
+{
+	switch (currentDBType)
+	{
+	case MongoType:
+		break;
+	case SQLServerType:
+	{
+		SQLServer* sql = static_cast<SQLServer*>(&(this->GetDB(currentDBType)));
+		 sql->OperateSQL(sqlStr);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+
 void DbManager::RegisterEntity()
 {
-	entityMap.emplace(std::make_pair(typeid(Entity::ServerInfo).name(), EntityTable::ServerInfoProcess));
-	entityMap.emplace(std::make_pair(typeid(Entity::UserInfo).name(), EntityTable::UserInfoProcess));
+	EntityFindFunc.emplace(std::make_pair(typeid(Entity::ServerInfo).name(), EntityTable::ServerInfoProcess_Find));
+	EntityFindFunc.emplace(std::make_pair(typeid(Entity::UserInfo).name(), EntityTable::UserInfoProcess_Find));
+
+	entityUpdateMap.emplace(std::make_pair(typeid(Entity::ServerInfo).name(), EntityTable::ServerInfoProcess_Update));
+	entityUpdateMap.emplace(std::make_pair(typeid(Entity::UserInfo).name(), EntityTable::UserInfoProcess_Update));
+
 }
 
 std::shared_ptr<SingleDB> DbManager::CreateSingleDB(DBConfig* config)

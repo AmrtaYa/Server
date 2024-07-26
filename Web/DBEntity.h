@@ -1,25 +1,28 @@
 #pragma once
 #include "string"
+
 namespace Entity
 {
+
 	struct  DBEntity
 	{
 	public:
-		long ID;
+		long long ID;
 	};
-
 
 	struct ServerInfo : public DBEntity
 	{
 	public:
-		std::string version;
-		std::string sqlName;
+		char version[200];
+		char sqlName[50];
 
 	};
 	struct UserInfo : public DBEntity
 	{
 	public:
-		std::string account;
-		std::string pwd;
+		char account[50];
+		char pwd[50];
+
 	};
+
 }

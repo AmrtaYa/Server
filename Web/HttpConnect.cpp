@@ -45,8 +45,8 @@ void HttpConnect::AcceptRequest()
 			boost::ignore_unused(bytes_transferred);
 			if (!ec)
 				httpSelf->HandleRequest();
-			else
-				LogManager::Log(ec.what());
+			/*else
+				LogManager::Log(ec.what());*/
 		});
 }
 

@@ -81,17 +81,19 @@ void HttpLogicPorcessTable::Http_ProcessDBConfirm(std::shared_ptr<Connect> http,
 	userStr = userStr.substr(userEqPos, userStr.length());
 	pwdStr = pwdStr.substr(pwdEqPos, pwdStr.length());
 
-
-	//boost::beast::ostream(respond.body()) << ;
-
-
 	//这边可能需要防注入一下
 	std::stringstream sstream;
 	sstream << "Account = '" << userStr << "' AND " << "Pwd = '" << pwdStr << "'";
 	auto entity = DB_FIND(sstream.str(), "*", Entity::UserInfo);
-	if (!entity.account.empty())
+	if (!entity.empty())
+	{
 		LogManager::Log("账号验证成功，账号为:" + userStr);
+		boost::beast::ostream(respond.body()) << TRUE;
+	}
 	else
+	{
 		LogManager::Log("账号验证失败，账号为:" + userStr);
+		boost::beast::ostream(respond.body()) << FALSE;
+	}
 	
 }
