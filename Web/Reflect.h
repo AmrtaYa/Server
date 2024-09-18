@@ -57,6 +57,7 @@ namespace GJC_Recfelct
 		std::size_t GetOffset();
 		void SetOffset(size_t offset);
 		void SetType(std::string str);
+		void SetTypeLen(std::size_t size);
 		std::string GetType();
 		void SetFieldName(std::string str);
 		void SetInstanceFunc(CreateFieldInstanceFunc func);
@@ -179,6 +180,7 @@ void* Type##FieldName##FieldRegisterCreateInstance()\
 		GJC_Recfelct::Field* f = new GJC_Recfelct::Field();					\
 		f->SetType(typeid(temp.##FieldName).name()); \
 		f->SetFieldName( #FieldName);		\
+		f->SetTypeLen(sizeof(temp.##FieldName));		\
 		f->SetOffset( (std::size_t)(&temp.##FieldName) - (std::size_t)(&temp)); \
 		f->SetInstanceFunc(Type##FieldName##FieldRegisterCreateInstance);\
 		return f;						\
@@ -195,6 +197,7 @@ void* Type##FieldName##FieldRegisterCreateInstance()\
 		Type temp;								    \
 		GJC_Recfelct::Field* f = new GJC_Recfelct::Field();					\
 		f->SetType(typeid(temp.##FieldName).name()); \
+		f->SetTypeLen( sizeof(temp.##FieldName));		\
 		f->SetFieldName( #FieldName);		\
 		f->SetOffset( (std::size_t)(&temp.##FieldName) - (std::size_t)(&temp)); \
 	f->SetInstanceFunc(Type##FieldName##FieldRegisterCreateInstance);\

@@ -51,8 +51,6 @@ int main()
 		IOServerPool::GetInstance()->InitPool(threadNum);
 		DbManager::GetInstance()->Init(dbDatas.data(), dbDatas.size());
 		ServerManager::GetInstance()->Init(datas.data(), 1);
-
-		auto e = DB_FIND("","*",Entity::ServerInfo);
 		IOServerPool::GetInstance()->Run();
 		return 0;
 	}

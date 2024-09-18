@@ -6,6 +6,7 @@ REGISTER_FIELD_NS(Entity,EntityName,FieldName);
 REGISTER_CLASS_NS(Entity,EntityName);\
 DBREG_F(EntityName,ID);
 
+
 //dbentity
 DBREG(DBEntity);
 

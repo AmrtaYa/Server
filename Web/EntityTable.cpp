@@ -12,10 +12,10 @@
 int TurnSQLType(std::string typeName)
 {
 	int t = 0;
-	
+
 	if (typeName.find("long") != std::string::npos || typeName.find("__int64") != std::string::npos)
 		t = SQL_C_LONG;
-	else if (typeName.find("char")!=std::string::npos)
+	else if (typeName.find("char") != std::string::npos)
 		t = SQL_C_CHAR;
 
 	return t;
@@ -26,58 +26,83 @@ DBEntity** EntityTable::Entity_Find(std::string typeName, SQLHSTMT hstmt, bool I
 	auto spacePos = typeName.find_first_of(' ');
 	typeName = typeName.substr(spacePos + 1);
 	auto entityType = REFLECT_GET_TYPE(typeName);
-	auto sizeLen = entityType.Size() * MAXQUEUE;
-	char** info = new char* [sizeLen];
+	auto entitySize = entityType.Size();
+
+	auto sizeLen = entitySize * MAXQUEUE;
+	DBEntity** info = new DBEntity * [MAXQUEUE];
+
 	SQLLEN len = SQL_NTS;
 	int index = 0;
 	auto fields = REFLECT_ALLFIELDS(typeName);
-	void** fieldInstance = new void* [fields.size()];
+
+	//char** fieldInstance = new char* [fields.size() * 16];//按照最大16字节给  需要x个字段地址  记得把里面所有的地址内容释放
+	std::vector<void*> fieldInstance;
 	//注册这个实体里的每一个字段并且输入数据
 	for (size_t i = 0; i < fields.size(); ++i)
 	{
 		auto fieldName = fields[i].GetFieldName();
-		auto instance = fields[i].CreateInstance();
-		fieldInstance[i] = instance;
+		void* instance = fields[i].CreateInstance();
+		fieldInstance.push_back(instance);
 		SQLBindCol(hstmt, i + 1, TurnSQLType(fields[i].GetType()), instance, fields[i].len(), &len);
 	}
+
 	auto ret = SQLFetch(hstmt);
-	char* single = new char[entityType.Size()];
+
+	char* single = new char[entitySize];
 	//设置ID,因为ID永远在最前面
-	memset(single, EmptyEntity, sizeof(EmptyEntity));
+	memset(single, 0, entitySize);
 	for (size_t i = 0; i < fields.size(); ++i)
 	{
 		//single做偏移，传入每一个实例里的数据以及长度(长度与实例里顺序一致)
 		memcpy(single + fields[i].GetOffset(), fieldInstance[i], fields[i].len());
 	}
-	info[index] = single;
+
+	info[index] = (DBEntity*)single;
 	index++;
+
+	//回收cpy后的内存
+	for (size_t i = 0; i < fieldInstance.size(); i++)
+	{
+		delete  fieldInstance[i];
+	}
+
 	if (IfSingle)
 		return (DBEntity**)info;
+
+
 	while (ret != SQL_NO_DATA)
 	{
-		for (size_t i = 0; i < fields.size(); ++i)
-		{
-			ZeroMemory(fieldInstance[i], fields[i].len());
-		}
-		memset(fieldInstance[0], EmptyEntity, sizeof(EmptyEntity));
+		//重置fieldInstance内的数据
+		fieldInstance.clear();
 		for (size_t i = 0; i < fields.size(); ++i)
 		{
 			auto fieldName = fields[i].GetFieldName();
-			SQLBindCol(hstmt, i + 1, TurnSQLType(fields[i].GetType()), fieldInstance[i], fields[i].len(), &len);
+			void* instance = fields[i].CreateInstance();
+			fieldInstance.push_back(instance);
+			SQLBindCol(hstmt, i + 1, TurnSQLType(fields[i].GetType()), instance, fields[i].len(), &len);
 		}
-		auto ret = SQLFetch(hstmt);
-		char* single = new char[entityType.Size()];
+		ret = SQLFetch(hstmt);
+
+		char* single = new char[entitySize];
 		//设置ID,因为ID永远在最前面
-		memset(single, EmptyEntity, sizeof(EmptyEntity));
+		memset(single,0,entitySize);
+		
 		for (size_t i = 0; i < fields.size(); ++i)
 		{
 			//single做偏移，传入每一个实例里的数据以及长度(长度与实例里顺序一致)
 			memcpy(single + fields[i].GetOffset(), fieldInstance[i], fields[i].len());
 		}
-		info[index] = single;
-		index++;
-	}
 
+		info[index] = (DBEntity*)single;
+		index++;
+		if (index >= MAXQUEUE - 1)break;//防止溢出
+		//回收cpy后的内存
+		for (size_t i = 0; i < fieldInstance.size(); i++)
+		{
+			delete  fieldInstance[i];
+		}
+	}
+	info[index - 1]->ID = EmptyEntity;
 	return (DBEntity**)info;
 }
 DBEntity** EntityTable::ServerInfoProcess_Find(SQLHSTMT hstmt, bool IfSingle)

@@ -1,5 +1,6 @@
 #include "Reflect.h"
 #include <mutex>
+#include <algorithm>
 std::unique_ptr<GJC_Recfelct::RefelctManager> GJC_Recfelct::RefelctManager::instance = nullptr;
 
 GJC_Recfelct::Register::Register(std::string typeName, RegisterFieldFunc func)
@@ -61,7 +62,11 @@ std::size_t GJC_Recfelct::Type::GetFieldOffset(std::string fieldName)
 		throw "未找到字段" + fieldName;
 	return iter->second->GetOffset();
 }
-
+//Field根据offset比较大小
+bool Fields_Min( GJC_Recfelct::Field& fA,GJC_Recfelct::Field& fB)
+{
+	return fA.GetOffset() < fB.GetOffset();
+}
 std::vector<GJC_Recfelct::Field> GJC_Recfelct::Type::GetFields()
 {
 	std::vector<GJC_Recfelct::Field> fs;
@@ -69,6 +74,8 @@ std::vector<GJC_Recfelct::Field> GJC_Recfelct::Type::GetFields()
 	{
 		fs.push_back(*iter->second);
 	}
+	sort(fs.begin(), fs.end(), Fields_Min);
+
 	return fs;
 }
 
@@ -97,6 +104,11 @@ void GJC_Recfelct::Field::SetOffset(size_t offset)
 void GJC_Recfelct::Field::SetType(std::string str)
 {
 	this->type = str;
+}
+
+void GJC_Recfelct::Field::SetTypeLen(std::size_t size)
+{
+	this->typeLen = size;
 }
 
 std::string GJC_Recfelct::Field::GetType()
