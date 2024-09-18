@@ -71,7 +71,7 @@ std::vector<T> SQLServer::Find(std::string str, std::string cols, EntityFindFunc
 	sqlHandle = SQLExecDirect(hstmt1, container, operaLen);
 
 	//查找相对应的转换实体函数
-	Entity::DBEntity** eData = reflectFunc(hstmt1, false);
+	Entity::DBEntity** eData = reflectFunc(std::string(typeid(T).name()),hstmt1, false);
 	std::vector<T> entity;
 	int forIndex = 0;
 	while (true)
@@ -85,7 +85,7 @@ std::vector<T> SQLServer::Find(std::string str, std::string cols, EntityFindFunc
 		entity.push_back(e);
 		forIndex++;
 	}
-	delete[] eData;
+	free(eData);
 	sqlHandle = SQLCloseCursor(hstmt1);
 	sqlHandle = SQLFreeHandle(SQL_HANDLE_STMT, hstmt1);
 
@@ -119,7 +119,7 @@ T SQLServer::FindOne(std::string str, std::string cols, EntityFindFunc& reflectF
 	sqlHandle = SQLExecDirect(hstmt1, container, operaLen);
 
 	//查找相对应的转换实体函数
-	Entity::DBEntity** eData = reflectFunc(hstmt1, true);
+	Entity::DBEntity** eData = reflectFunc(std::string(typeid(T).name()), hstmt1, true);
 	T* ePtr = static_cast<T*>(eData[0]);
 	T e = *ePtr;
 
@@ -142,7 +142,7 @@ inline int SQLServer::UpdateOne(T entity, EntityUpdateFunc& func)
 	int allLen = typeName.length();
 	int classNameFirst = typeName.find_first_of(":") + 2;
 	typeName = typeName.substr(classNameFirst, allLen - classNameFirst);
-	std::string entitySql = func(hstmt1, (Entity::DBEntity*)(&entity), true);
+	std::string entitySql = func(std::string(typeid(T).name()),hstmt1, (Entity::DBEntity*)(&entity), true);
 	sstream << "update " << typeName << " set " << entitySql << "where ID = "<<std::to_string(entity.ID);
 
 	//str拼接转换

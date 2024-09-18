@@ -15,7 +15,6 @@
 
 
 
-
 std::vector<ServerData> InitServerData()
 {
 	std::vector<ServerData> datas;
@@ -53,6 +52,7 @@ int main()
 		DbManager::GetInstance()->Init(dbDatas.data(), dbDatas.size());
 		ServerManager::GetInstance()->Init(datas.data(), 1);
 
+		auto e = DB_FIND("","*",Entity::ServerInfo);
 		IOServerPool::GetInstance()->Run();
 		return 0;
 	}

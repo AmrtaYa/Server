@@ -11,9 +11,11 @@ class EntityTable
 {
 	friend class DbManager;
 private:
+	static  DBEntity** Entity_Find(std::string typeName,SQLHSTMT hstmt, bool IfSingle);
 	static  DBEntity** ServerInfoProcess_Find(SQLHSTMT hstmt,bool IfSingle);
 	static  DBEntity** UserInfoProcess_Find(SQLHSTMT hstmt, bool IfSingle);
 
+	static std::string Entity_Update(std::string typeName,SQLHSTMT hstmt, Entity::DBEntity* entity, bool IfSingle);
 	static std::string ServerInfoProcess_Update(SQLHSTMT hstmt, Entity::DBEntity* entity, bool IfSingle);
 	static std::string UserInfoProcess_Update(SQLHSTMT hstmt, Entity::DBEntity* entity, bool IfSingle);
 

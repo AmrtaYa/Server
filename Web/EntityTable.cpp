@@ -2,6 +2,84 @@
 #include "LogManager.h"
 #include "iostream"
 #include "sstream"
+#include "Reflect.h"
+#include "vector"
+/// <summary>
+/// 字段名字转换
+/// </summary>
+/// <param name="fieldName"></param>
+/// <returns></returns>
+int TurnSQLType(std::string typeName)
+{
+	int t = 0;
+	
+	if (typeName.find("long") != std::string::npos || typeName.find("__int64") != std::string::npos)
+		t = SQL_C_LONG;
+	else if (typeName.find("char")!=std::string::npos)
+		t = SQL_C_CHAR;
+
+	return t;
+}
+DBEntity** EntityTable::Entity_Find(std::string typeName, SQLHSTMT hstmt, bool IfSingle)
+{
+	//将typeid的class字符串去除
+	auto spacePos = typeName.find_first_of(' ');
+	typeName = typeName.substr(spacePos + 1);
+	auto entityType = REFLECT_GET_TYPE(typeName);
+	auto sizeLen = entityType.Size() * MAXQUEUE;
+	char** info = new char* [sizeLen];
+	SQLLEN len = SQL_NTS;
+	int index = 0;
+	auto fields = REFLECT_ALLFIELDS(typeName);
+	void** fieldInstance = new void* [fields.size()];
+	//注册这个实体里的每一个字段并且输入数据
+	for (size_t i = 0; i < fields.size(); ++i)
+	{
+		auto fieldName = fields[i].GetFieldName();
+		auto instance = fields[i].CreateInstance();
+		fieldInstance[i] = instance;
+		SQLBindCol(hstmt, i + 1, TurnSQLType(fields[i].GetType()), instance, fields[i].len(), &len);
+	}
+	auto ret = SQLFetch(hstmt);
+	char* single = new char[entityType.Size()];
+	//设置ID,因为ID永远在最前面
+	memset(single, EmptyEntity, sizeof(EmptyEntity));
+	for (size_t i = 0; i < fields.size(); ++i)
+	{
+		//single做偏移，传入每一个实例里的数据以及长度(长度与实例里顺序一致)
+		memcpy(single + fields[i].GetOffset(), fieldInstance[i], fields[i].len());
+	}
+	info[index] = single;
+	index++;
+	if (IfSingle)
+		return (DBEntity**)info;
+	while (ret != SQL_NO_DATA)
+	{
+		for (size_t i = 0; i < fields.size(); ++i)
+		{
+			ZeroMemory(fieldInstance[i], fields[i].len());
+		}
+		memset(fieldInstance[0], EmptyEntity, sizeof(EmptyEntity));
+		for (size_t i = 0; i < fields.size(); ++i)
+		{
+			auto fieldName = fields[i].GetFieldName();
+			SQLBindCol(hstmt, i + 1, TurnSQLType(fields[i].GetType()), fieldInstance[i], fields[i].len(), &len);
+		}
+		auto ret = SQLFetch(hstmt);
+		char* single = new char[entityType.Size()];
+		//设置ID,因为ID永远在最前面
+		memset(single, EmptyEntity, sizeof(EmptyEntity));
+		for (size_t i = 0; i < fields.size(); ++i)
+		{
+			//single做偏移，传入每一个实例里的数据以及长度(长度与实例里顺序一致)
+			memcpy(single + fields[i].GetOffset(), fieldInstance[i], fields[i].len());
+		}
+		info[index] = single;
+		index++;
+	}
+
+	return (DBEntity**)info;
+}
 DBEntity** EntityTable::ServerInfoProcess_Find(SQLHSTMT hstmt, bool IfSingle)
 {
 	ServerInfo** info = new ServerInfo * [MAXQUEUE];
@@ -85,6 +163,11 @@ DBEntity** EntityTable::UserInfoProcess_Find(SQLHSTMT hstmt, bool IfSingle)
 		index++;
 	}
 	return (DBEntity**)info;
+}
+
+std::string EntityTable::Entity_Update(std::string typeName, SQLHSTMT hstmt, Entity::DBEntity* entity, bool IfSingle)
+{
+	return std::string();
 }
 
 std::string EntityTable::ServerInfoProcess_Update(SQLHSTMT hstmt, Entity::DBEntity* entity, bool IfSingle)

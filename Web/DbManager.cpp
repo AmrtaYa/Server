@@ -46,7 +46,7 @@ void DbManager::SQLOperator(std::string sqlStr)
 	case SQLServerType:
 	{
 		SQLServer* sql = static_cast<SQLServer*>(&(this->GetDB(currentDBType)));
-		 sql->OperateSQL(sqlStr);
+		sql->OperateSQL(sqlStr);
 		break;
 	}
 	default:
@@ -57,11 +57,8 @@ void DbManager::SQLOperator(std::string sqlStr)
 
 void DbManager::RegisterEntity()
 {
-	EntityFindFunc.emplace(std::make_pair(typeid(Entity::ServerInfo).name(), EntityTable::ServerInfoProcess_Find));
-	EntityFindFunc.emplace(std::make_pair(typeid(Entity::UserInfo).name(), EntityTable::UserInfoProcess_Find));
-
-	entityUpdateMap.emplace(std::make_pair(typeid(Entity::ServerInfo).name(), EntityTable::ServerInfoProcess_Update));
-	entityUpdateMap.emplace(std::make_pair(typeid(Entity::UserInfo).name(), EntityTable::UserInfoProcess_Update));
+	FindFunc = EntityTable::Entity_Find;
+	UpdateFunc = EntityTable::Entity_Update;
 
 }
 
@@ -90,4 +87,12 @@ DBConfig::DBConfig(std::string ip, short port, DataBaseType dbType) :
 {
 }
 
+EntityFindFunc& DbManager::GetReflect_Find()
+{
+	return FindFunc;
+}
 
+EntityUpdateFunc& DbManager::GetReflect_Update()
+{
+	return UpdateFunc;
+}
